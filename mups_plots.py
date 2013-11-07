@@ -138,6 +138,53 @@ def mups_2_temps(t1, t2):
 
     fig.savefig(t1[:4] + '_' + t1[5:8] + '_mups2_temps.png')
 
+def mups_2_temps_xout_2():
+    
+    close('all')
+    
+    t1 = '2013:231:11:00:00'
+    t2 = '2013:231:12:45:00'
+    
+    msids = ['AOVBM2FS', 'PM2THV1T', 'PM2THV2T']
+
+    data = fetch.Msidset(msids, t1, t2, stat=None)
+    b2_exp = data['PM2THV1T'].vals + 3
+
+    xticks = np.linspace(DateTime(t1).secs, DateTime(t2).secs, 11)
+    xticklabels = [DateTime(t).date[5:17] for t in xticks]
+    
+    fig = plt.figure(figsize=[18,9], facecolor='w')
+    rect = [0.06, 0.15, 0.88, 0.75]
+    ax1 = fig.add_axes(rect)
+    
+    ax1.plot(data['AOVBM2FS'].times, data['AOVBM2FS'].raw_vals, 
+             color=[0.4, 0.4, 0.4])
+    ax1.set_ylim(-1, 12)
+    ax1.set_yticks([0])
+    ax1.set_yticklabels(['AOVBM2FS'], rotation=45)
+    for t in ax1.yaxis.get_ticklines():
+        t.set_visible(False) 
+    ax1.set_xticks(xticks)
+    ax1.set_xticklabels(xticklabels, rotation=45, ha='right')
+    ax1.set_xlim(xticks[0], xticks[-1])
+
+    ax2 = fig.add_axes(rect, frameon=False)
+    ax2.plot(data['PM2THV1T'].times, data['PM2THV1T'].vals, color="#56B4E9", linewidth=2.0, label='2A Actual')
+    ax2.plot(data['PM2THV2T'].times, data['PM2THV2T'].vals, color="#009E73", linewidth=2.0, label='2B Actual')   
+    ax2.plot(data['PM2THV1T'].times, b2_exp, 'k:', alpha=0.5, label='2B Predicted w/o Firings')
+    ax2.legend(loc='upper left')
+    ax2.set_ylim(100, 150)
+    ax2.yaxis.set_label_position('right')
+    ax2.yaxis.tick_right()
+    ax2.set_ylabel('MUPS-2 Temperatures [deg F]')
+    ax2.set_xticks(xticks)
+    ax2.set_xticklabels('')
+    ax2.set_xlim(xticks[0], xticks[-1])
+    
+    title('MUPS B-Side Activations and MUPS 2B Temperature - 2013:231 Firing')
+
+    fig.savefig('2013_231_mups2_temps_expected.png')
+
 def mups_2_delta_temps(t1, t2):
     
     close('all')
