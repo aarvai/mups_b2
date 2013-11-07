@@ -216,6 +216,7 @@ def mups_2_delta_temps(t1, t2):
     
     ax2 = fig.add_axes(rect, frameon=False)
     ax2.plot(data[msids[-2]].times, dt, color="#0072B2", alpha=0.5, label=msids[-2])
+    ax2.set_ylim(-1, 6)
     ax2.yaxis.set_label_position('right')
     ax2.yaxis.tick_right()
     ax2.set_ylabel('MUPS-2B minus MUPS-2A Temps [deg F]')
