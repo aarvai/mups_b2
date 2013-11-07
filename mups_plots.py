@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 
 from utilities import find_first_after, find_last_before, append_to_array
 
-def mups_ELBI(t1, t2):
+def mups_ELBI(t1, t2, **kwargs):
     close('all')
     msids = ['AOVBM1FS', 'AOVBM2FS', 'AOVBM3FS', 'AOVBM4FS', 'ELBI']    
     
     data = fetch.Msidset(msids, t1, t2, stat=None)
-        
+   
     xticks = np.linspace(DateTime(t1).secs, DateTime(t2).secs, 11)
     xticklabels = [DateTime(t).date[5:17] for t in xticks]
 
@@ -20,8 +20,11 @@ def mups_ELBI(t1, t2):
 
     for n, names in enumerate(msids[:4]):
         ax1.plot(data[msids[n]].times, data[msids[n]].raw_vals + n * 2.0, 
-                 color=[0.4, 0.4, 0.4])
-    ax1.set_ylim(-1, 8)
+                 color=[0.4, 0.4, 0.4], linewidth=3.0)
+        fire = data[msids[n]].raw_vals == 1
+        ax1.plot(data[msids[n]].times[fire], data[msids[n]].raw_vals[fire] + n * 2.0, 
+                 '*', color=[0.4, 0.4, 0.4], markersize=10)       
+    ax1.set_ylim(-1, 20)
     ax1.set_yticks([0,2,4,6])
     ax1.set_yticklabels(msids[:4], rotation=45)
     for t in ax1.yaxis.get_ticklines():
@@ -31,7 +34,17 @@ def mups_ELBI(t1, t2):
     ax1.set_xlim(xticks[0], xticks[-1])
     
     ax2 = fig.add_axes(rect, frameon=False)
-    ax2.plot(data['ELBI'].times, data['ELBI'].vals, color="#56B4E9", alpha=0.5)
+    ax2.plot(data['ELBI'].times, data['ELBI'].vals, color="#56B4E9", linewidth=3.0)
+    for thr in range(1,5):
+        msid = 'AOVBM' + str(thr) + 'FS'
+        fire = data[msid].raw_vals == 1 
+        first_fire = append_to_array(~fire[:-1] & fire[1:], pos=0, val=bool(0))
+        t_fire = data[msid].times[fire]
+        for t in t_fire:
+            i1 = find_first_after(t-.6, data['ELBI'].times)
+            i2 = find_last_before(t, data['ELBI'].times)
+            ax2.plot(data['ELBI'].times[i1:i2+1], data['ELBI'].vals[i1:i2+1], 'r*-', linewidth=3.0, mew=0, markersize=10)
+    ax2.set_ylim(45,65)    
     ax2.yaxis.set_label_position('right')
     ax2.yaxis.tick_right()
     ax2.set_ylabel('ELBI')
@@ -40,9 +53,11 @@ def mups_ELBI(t1, t2):
     ax2.set_xlim(xticks[0], xticks[-1])
  
     title('MUPS B-Side Activations and Bus Current - ' + t1[:8] + ' Firing')
-
-    fig.savefig(t1[:4] + '_' + t1[5:8] + '_elbi.png')
-
+    if kwargs.has_key('savefig'):
+        fig.savefig(kwargs.pop('savefig'))
+    else:
+        fig.savefig(t1[:4] + '_' + t1[5:8] + '_elbi.png')
+    
 def mups_delta_ELBI(t1, t2):
     close('all')
     msids = ['AOVBM1FS', 'AOVBM2FS', 'AOVBM3FS', 'AOVBM4FS', 'ELBI']    
@@ -216,61 +231,7 @@ def timeline(t1, t2):
     savefig(t1[:4] + '_' + t1[5:8] + '_timeline.png')
 
 
-def mups_ELBI(t1, t2):
-    close('all')
-    msids = ['AOVBM1FS', 'AOVBM2FS', 'AOVBM3FS', 'AOVBM4FS', 'ELBI']    
-    
-    data = fetch.Msidset(msids, t1, t2, stat=None)
-   
-    xticks = np.linspace(DateTime(t1).secs, DateTime(t2).secs, 11)
-    xticklabels = [DateTime(t).date[5:17] for t in xticks]
 
-    fig = plt.figure(figsize=[18,9], facecolor='w')
-    rect = [0.06, 0.15, 0.88, 0.75]
-    ax1 = fig.add_axes(rect)
-
-    for n, names in enumerate(msids[:4]):
-        ax1.plot(data[msids[n]].times, data[msids[n]].raw_vals + n * 2.0, 
-                 color=[0.4, 0.4, 0.4])
-        fire = data[msids[n]].raw_vals == 1
-        ax1.plot(data[msids[n]].times[fire], data[msids[n]].raw_vals[fire] + n * 2.0, 
-                 '*', color=[0.4, 0.4, 0.4])       
-    ax1.set_ylim(-1, 20)
-    ax1.set_yticks([0,2,4,6])
-    ax1.set_yticklabels(msids[:4], rotation=45)
-    for t in ax1.yaxis.get_ticklines():
-        t.set_visible(False) 
-        ax1.set_xticks(xticks)
-    ax1.set_xticklabels(xticklabels, rotation=45, ha='right')
-    ax1.set_xlim(xticks[0], xticks[-1])
-    
-    ax2 = fig.add_axes(rect, frameon=False)
-    ax2.plot(data['ELBI'].times, data['ELBI'].vals, color="#56B4E9", alpha=0.5)
-    for thr in range(1,5):
-        msid = 'AOVBM' + str(thr) + 'FS'
-        fire = data[msid].raw_vals == 1 
-        first_fire = append_to_array(~fire[:-1] & fire[1:], pos=0, val=bool(0))
-        t_fire = data[msid].times[fire]
-        for t in t_fire:
-            i1 = find_first_after(t-.6, data['ELBI'].times)
-            i2 = find_last_before(t, data['ELBI'].times)
-            ax2.plot(data['ELBI'].times[i1:i2+1], data['ELBI'].vals[i1:i2+1], color='r', alpha=0.5)
-            ax2.plot(data['ELBI'].times[i1:i2+1], data['ELBI'].vals[i1:i2+1], 'r*', mew=0, alpha=0.5)
-    if np.min(data['ELBI'].vals) < 55:
-        ax2.set_ylim(45,60)
-    else:
-        ax2.set_ylim(50,65)
-    ax2.set_ylim(45,65)    
-    ax2.yaxis.set_label_position('right')
-    ax2.yaxis.tick_right()
-    ax2.set_ylabel('ELBI')
-    ax2.set_xticks(xticks)
-    ax2.set_xticklabels('')
-    ax2.set_xlim(xticks[0], xticks[-1])
- 
-    title('MUPS B-Side Activations and Bus Current - ' + t1[:8] + ' Firing')
-
-    fig.savefig(t1[:4] + '_' + t1[5:8] + '_elbi.png')
     
     
     
