@@ -200,12 +200,11 @@ def mups_2_delta_temps(t1, t2):
     rect = [0.06, 0.15, 0.88, 0.75]
     ax1 = fig.add_axes(rect)
     
-    for n, names in enumerate(msids[:4]):
-        ax1.plot(data[msids[n]].times, data[msids[n]].raw_vals + n * 2.0, 
-                 color=[0.4, 0.4, 0.4])
-    ax1.set_ylim(-1, 8)
-    ax1.set_yticks([0,2,4,6])
-    ax1.set_yticklabels(msids[:4], rotation=45)
+    ax1.plot(data['AOVBM2FS'].times, data['AOVBM2FS'].raw_vals, 
+             color=[0.4, 0.4, 0.4])
+    ax1.set_ylim(-1, 12)
+    ax1.set_yticks([0])
+    ax1.set_yticklabels(['AOVBM2FS'], rotation=45)
     for t in ax1.yaxis.get_ticklines():
         t.set_visible(False) 
     ax1.set_xticks(xticks)
