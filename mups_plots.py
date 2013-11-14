@@ -215,7 +215,7 @@ def mups_2_delta_temps(t1, t2):
     dt = data['PM2THV2T'].vals - data['PM2THV1T'].vals 
     
     ax2 = fig.add_axes(rect, frameon=False)
-    ax2.plot(data[msids[-2]].times, dt, color="#0072B2", alpha=0.5, label=msids[-2])
+    ax2.plot(data[msids[-2]].times, dt, 'g', linewidth=3.0, label=msids[-2])
     ax2.set_ylim(-1, 6)
     ax2.yaxis.set_label_position('right')
     ax2.yaxis.tick_right()
@@ -227,6 +227,50 @@ def mups_2_delta_temps(t1, t2):
     title('MUPS B-Side Activations and MUPS-2 B-side vs A-side Temps - ' + t1[:8] + ' Firing')
 
     fig.savefig(t1[:4] + '_' + t1[5:8] + '_mups2_delta_temps.png')
+
+def att_errs(t1, t2):
+    
+    close('all')
+    
+    msids = ['AOVBM1FS', 'AOVBM2FS', 'AOVBM3FS', 'AOVBM4FS', 'AOATTER1', 'AOATTER2', 'AOATTER3']
+
+    data = fetch.Msidset(msids, t1, t2, stat=None)
+
+    xticks = np.linspace(DateTime(t1).secs, DateTime(t2).secs, 11)
+    xticklabels = [DateTime(t).date[5:17] for t in xticks]
+    
+    fig = plt.figure(figsize=[18,9], facecolor='w')
+    rect = [0.06, 0.15, 0.88, 0.75]
+    ax1 = fig.add_axes(rect)
+    
+    for n, names in enumerate(msids[:4]):
+        ax1.plot(data[msids[n]].times, data[msids[n]].raw_vals + n * 2.0, 
+                 color=[0.4, 0.4, 0.4])
+    ax1.set_ylim(-1, 20)
+    ax1.set_yticks([0,2,4,6])
+    ax1.set_yticklabels(msids[:4], rotation=45)
+    for t in ax1.yaxis.get_ticklines():
+        t.set_visible(False) 
+    ax1.set_xticks(xticks)
+    ax1.set_xticklabels(xticklabels, rotation=45, ha='right')
+    ax1.set_xlim(xticks[0], xticks[-1])
+    
+    ax2 = fig.add_axes(rect, frameon=False)
+    ax2.plot(data[msids[-3]].times, data[msids[-3]].vals*180/pi*3600, color="#56B4E9", alpha=0.5, label='Roll Attitude Error')
+    ax2.plot(data[msids[-2]].times, data[msids[-2]].vals*180/pi*3600, color="#009E73", alpha=0.5, label='Pitch Attitude Error')   
+    ax2.plot(data[msids[-1]].times, data[msids[-1]].vals*180/pi*3600, color="#E69F00", alpha=0.5, label='Yaw Attitude Error')   
+    ax2.set_ylim(-1000, 1000)
+    ax2.legend()
+    ax2.yaxis.set_label_position('right')
+    ax2.yaxis.tick_right()
+    ax2.set_ylabel('Attitude Errors [arcsec]')
+    ax2.set_xticks(xticks)
+    ax2.set_xticklabels('')
+    ax2.set_xlim(xticks[0], xticks[-1])
+    
+    title('MUPS B-Side Activations and Attitude Errors - ' + t1[:8] + ' Firing')
+
+    fig.savefig(t1[:4] + '_' + t1[5:8] + '_mups2_att_errs.png')
 
 def timeline(t1, t2):
     
