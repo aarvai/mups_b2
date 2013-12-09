@@ -7,7 +7,7 @@ from utilities import find_first_after, find_last_before, append_to_array
 
 def mups_ELBI(t1, t2, **kwargs):
     close('all')
-    msids = ['AOVBM1FS', 'AOVBM2FS', 'AOVBM3FS', 'AOVBM4FS', 'ELBI']    
+    msids = ['AOVBM1FS', 'AOVBM2FS', 'AOVBM3FS', 'AOVBM4FS', 'ELBI_LOW']    
     
     data = fetch.Msidset(msids, t1, t2, stat=None)
    
@@ -34,20 +34,20 @@ def mups_ELBI(t1, t2, **kwargs):
     ax1.set_xlim(xticks[0], xticks[-1])
     
     ax2 = fig.add_axes(rect, frameon=False)
-    ax2.plot(data['ELBI'].times, data['ELBI'].vals, color="#56B4E9", linewidth=3.0)
+    ax2.plot(data['ELBI_LOW'].times, data['ELBI_LOW'].vals, color="#56B4E9", linewidth=3.0)
     for thr in range(1,5):
         msid = 'AOVBM' + str(thr) + 'FS'
         fire = data[msid].raw_vals == 1 
         first_fire = append_to_array(~fire[:-1] & fire[1:], pos=0, val=bool(0))
         t_fire = data[msid].times[fire]
         for t in t_fire:
-            i1 = find_first_after(t-.6, data['ELBI'].times)
-            i2 = find_last_before(t, data['ELBI'].times)
-            ax2.plot(data['ELBI'].times[i1:i2+1], data['ELBI'].vals[i1:i2+1], 'r*-', linewidth=3.0, mew=0, markersize=10)
-    ax2.set_ylim(45,65)    
+            i1 = find_first_after(t-.6, data['ELBI_LOW'].times)
+            i2 = find_last_before(t, data['ELBI_LOW'].times)
+            ax2.plot(data['ELBI_LOW'].times[i1:i2+1], data['ELBI_LOW'].vals[i1:i2+1], '*-', color='#D55E00', linewidth=3.0, mew=0, markersize=10)
+    ax2.set_ylim(16,31)    
     ax2.yaxis.set_label_position('right')
     ax2.yaxis.tick_right()
-    ax2.set_ylabel('ELBI')
+    ax2.set_ylabel('ELBI_LOW')
     ax2.set_xticks(xticks)
     ax2.set_xticklabels('')
     ax2.set_xlim(xticks[0], xticks[-1])
@@ -60,7 +60,7 @@ def mups_ELBI(t1, t2, **kwargs):
     
 def mups_delta_ELBI(t1, t2):
     close('all')
-    msids = ['AOVBM1FS', 'AOVBM2FS', 'AOVBM3FS', 'AOVBM4FS', 'ELBI']    
+    msids = ['AOVBM1FS', 'AOVBM2FS', 'AOVBM3FS', 'AOVBM4FS', 'ELBI_LOW']    
     
     data = fetch.Msidset(msids, t1, t2, stat=None)
     
@@ -84,10 +84,10 @@ def mups_delta_ELBI(t1, t2):
     ax1.set_xlim(xticks[0], xticks[-1])
     
     ax2 = fig.add_axes(rect, frameon=False)
-    ax2.plot(data['ELBI'].times[1:], diff(data['ELBI'].vals), color="#56B4E9", alpha=0.5)
+    ax2.plot(data['ELBI_LOW'].times[1:], diff(data['ELBI_LOW'].vals), color="#56B4E9", alpha=0.5)
     ax2.yaxis.set_label_position('right')
     ax2.yaxis.tick_right()
-    ax2.set_ylabel('Change in ELBI')
+    ax2.set_ylabel('Change in ELBI_LOW')
     ax2.set_xticks(xticks)
     ax2.set_xticklabels('')
     ax2.set_xlim(xticks[0], xticks[-1])
@@ -321,7 +321,26 @@ def timeline(t1, t2):
     
     savefig(t1[:4] + '_' + t1[5:8] + '_timeline.png')
 
-
+def plot_dropouts(msid, thresh=-20):
+    close('all')
+    x = fetch.Msid(msid,'2012:300',stat='5min')
+    d_temp = diff(x.vals)
+    drop = d_temp < thresh
+    figure()
+    subplot(2,1,1)
+    title(msid + ' Dropouts w.r.t. Time \n Dropout defined as:  T2 - T1 < ' + str(thresh) +' deg F')
+    plot_cxctime(x.times, x.vals, 'b', label='All Temps')
+    plot_cxctime(x.times[:-1][drop],x.vals[:-1][drop],'r.', alpha=.5, label='Temp Prior to a Dropout')
+    ylabel('deg F')
+    legend(loc=3)
+    subplot(2,1,2)
+    hist(x.vals, bins=20, range=[min(x.vals), max(x.vals)], normed=True, color='b', label='All Temps')
+    hist(x.vals[:-1][drop], bins=20, range=[min(x.vals), max(x.vals)], normed=True, color='r', alpha=.5, label='Temp Prior to a Dropout')
+    legend(loc=3)
+    ylabel('Fraction of 5-min Data Points')
+    xlabel('deg F')
+    tight_layout()
+    savefig(msid+'_dropouts.png')
 
     
     

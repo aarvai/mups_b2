@@ -39,3 +39,12 @@ mups_ELBI('2013:231:11:45:12', '2013:231:11:46:12', savefig='2013_231_elbi_11_2b
 mups_ELBI('2013:231:11:46:22', '2013:231:11:47:22', savefig='2013_231_elbi_12_2b.png')  # MUPS-2B try 8
 mups_ELBI('2013:231:11:51:34', '2013:231:11:52:34', savefig='2013_231_elbi_13_2b.png')  # MUPS-2B try 9
 mups_ELBI('2013:231:11:56:54', '2013:231:11:57:54', savefig='2013_231_elbi_14_2b.png')  # MUPS-2B try 10
+
+# Other Dumps
+mups_ELBI('2013:276:04:34:00.000','2013:276:04:38:00.000')
+
+# Dropout Statistics
+msids = ['PM1THV1T','PM2THV1T','PM2THV2T','PR1TV01T','PLAEV4AT','PLAEV2BT']
+for msid in msids:
+    plot_dropouts(msid)
+    
