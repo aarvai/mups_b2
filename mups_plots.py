@@ -1,6 +1,7 @@
 import numpy as np
 from Ska.engarchive import fetch_eng as fetch
 from Chandra.Time import DateTime
+import matplotlib
 import matplotlib.pyplot as plt
 
 from utilities import find_first_after, find_last_before, append_to_array
@@ -169,9 +170,9 @@ def mups_2_temps_xout_2():
     ax1.set_xlim(xticks[0], xticks[-1])
 
     ax2 = fig.add_axes(rect, frameon=False)
-    ax2.plot(data['PM2THV1T'].times, data['PM2THV1T'].vals, color="#56B4E9", linewidth=2.0, label='2A Actual')
-    ax2.plot(data['PM2THV2T'].times, data['PM2THV2T'].vals, color="#009E73", linewidth=2.0, label='2B Actual')   
-    ax2.plot(data['PM2THV1T'].times, b2_exp, 'k:', alpha=0.5, label='2B Predicted w/o Firings')
+    ax2.plot(data['PM2THV1T'].times, data['PM2THV1T'].vals, color="#56B4E9", linewidth=4.0, label='2A Actual')
+    ax2.plot(data['PM2THV2T'].times, data['PM2THV2T'].vals, 'm', linewidth=4.0, label='2B Actual')   
+    ax2.plot(data['PM2THV1T'].times, b2_exp, 'm:', linewidth=4.0, label='2B Predicted w/o Firings')
     ax2.legend(loc='upper left')
     ax2.set_ylim(100, 150)
     ax2.yaxis.set_label_position('right')
@@ -228,7 +229,7 @@ def mups_2_delta_temps(t1, t2):
 
     fig.savefig(t1[:4] + '_' + t1[5:8] + '_mups2_delta_temps.png')
 
-def att_errs(t1, t2):
+def att_errs(t1, t2, ylim=[-1000,1000]):
     
     close('all')
     
@@ -239,7 +240,7 @@ def att_errs(t1, t2):
     xticks = np.linspace(DateTime(t1).secs, DateTime(t2).secs, 11)
     xticklabels = [DateTime(t).date[5:17] for t in xticks]
     
-    fig = plt.figure(figsize=[18,9], facecolor='w')
+    fig = plt.figure(figsize=[19,9], facecolor='w')
     rect = [0.06, 0.15, 0.88, 0.75]
     ax1 = fig.add_axes(rect)
     
@@ -248,7 +249,7 @@ def att_errs(t1, t2):
                  color=[0.4, 0.4, 0.4])
     ax1.set_ylim(-1, 20)
     ax1.set_yticks([0,2,4,6])
-    ax1.set_yticklabels(msids[:4], rotation=45)
+    ax1.set_yticklabels(['B1 Fire','B2 Fire', 'B3 Fire', 'B4 Fire'], rotation=45)
     for t in ax1.yaxis.get_ticklines():
         t.set_visible(False) 
     ax1.set_xticks(xticks)
@@ -256,10 +257,10 @@ def att_errs(t1, t2):
     ax1.set_xlim(xticks[0], xticks[-1])
     
     ax2 = fig.add_axes(rect, frameon=False)
-    ax2.plot(data[msids[-3]].times, data[msids[-3]].vals*180/pi*3600, color="#56B4E9", alpha=0.5, label='Roll Attitude Error')
-    ax2.plot(data[msids[-2]].times, data[msids[-2]].vals*180/pi*3600, color="#009E73", alpha=0.5, label='Pitch Attitude Error')   
-    ax2.plot(data[msids[-1]].times, data[msids[-1]].vals*180/pi*3600, color="#E69F00", alpha=0.5, label='Yaw Attitude Error')   
-    ax2.set_ylim(-1000, 1000)
+    ax2.plot(data[msids[-3]].times, data[msids[-3]].vals*180/pi*3600, color="#56B4E9", alpha=0.5, label='Roll Attitude Error', linewidth=5)
+    ax2.plot(data[msids[-2]].times, data[msids[-2]].vals*180/pi*3600, color="#009E73", alpha=0.5, label='Pitch Attitude Error', linewidth=5)   
+    ax2.plot(data[msids[-1]].times, data[msids[-1]].vals*180/pi*3600, color="#E69F00", alpha=0.5, label='Yaw Attitude Error', linewidth=5)   
+    ax2.set_ylim(ylim)
     ax2.legend()
     ax2.yaxis.set_label_position('right')
     ax2.yaxis.tick_right()
@@ -267,6 +268,8 @@ def att_errs(t1, t2):
     ax2.set_xticks(xticks)
     ax2.set_xticklabels('')
     ax2.set_xlim(xticks[0], xticks[-1])
+
+    matplotlib.rcParams.update({'font.size': 16})
     
     title('MUPS B-Side Activations and Attitude Errors - ' + t1[:8] + ' Firing')
 
