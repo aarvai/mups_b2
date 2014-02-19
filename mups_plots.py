@@ -241,7 +241,7 @@ def att_errs(t1, t2, ylim=[-1000,1000]):
     xticklabels = [DateTime(t).date[5:17] for t in xticks]
     
     fig = plt.figure(figsize=[19,9], facecolor='w')
-    rect = [0.06, 0.15, 0.88, 0.75]
+    rect = [0.10, 0.19, 0.82, 0.71]
     ax1 = fig.add_axes(rect)
     
     for n, names in enumerate(msids[:4]):
@@ -269,11 +269,13 @@ def att_errs(t1, t2, ylim=[-1000,1000]):
     ax2.set_xticklabels('')
     ax2.set_xlim(xticks[0], xticks[-1])
 
-    matplotlib.rcParams.update({'font.size': 16})
+    #matplotlib.rcParams.update({'font.size': 22})
     
     title('MUPS B-Side Activations and Attitude Errors - ' + t1[:8] + ' Firing')
 
     fig.savefig(t1[:4] + '_' + t1[5:8] + '_mups2_att_errs.png')
+    
+    #matplotlib.rcParams.update({'font.size': 12})
 
 def timeline(t1, t2):
     
